@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-// Biz yaratgan savollar faylini import qilamiz
+import { useState } from 'react';
+
 import questions from './questions.json';
 
 type Page = 'HOME' | 'TEST' | 'RESULT';
