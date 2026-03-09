@@ -49,74 +49,82 @@ function App() {
 
   // Javob tugmalariga rang berish uchun funksiya
   const getButtonClass = (option: string) => {
-    if (!isAnswered) {
-      return "border-slate-200 hover:bg-blue-50 hover:border-blue-400"; // Standart holat
-    }
-    const correctAnswer = questions[currentQuestionIndex].correctAnswer;
-    if (option === correctAnswer) {
-      return "bg-green-200 border-green-500"; // To'g'ri javob har doim yashil
-    }
-    if (option === selectedAnswer && option !== correctAnswer) {
-      return "bg-red-200 border-red-500"; // Tanlangan noto'g'ri javob
-    }
-    return "border-slate-200"; // Boshqa variantlar
-  };
+  if (!isAnswered) {
+    return ""; // Standart holatda qo'shimcha klass yo'q
+  }
+  const correctAnswer = questions[currentQuestionIndex].correctAnswer;
+  if (option === correctAnswer) {
+    return "correct"; // To'g'ri javob uchun
+  }
+  if (option === selectedAnswer && option !== correctAnswer) {
+    return "incorrect"; // Tanlangan noto'g'ri javob uchun
+  }
+  return ""; // Boshqa variantlar uchun
+};
 
   const renderHomePage = () => (
-    <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-2xl w-full">
-      <h1 className="text-5xl font-extrabold mb-3 text-slate-800">EduLearn</h1>
-      <p className="text-lg text-slate-600 mb-8">Bilimingizni sinab ko'ring va yangi cho'qqilarni zabt eting!</p>
-      <div className="flex justify-center gap-4">
-        <button onClick={startTest} className="bg-blue-600 text-white font-bold py-4 px-10 rounded-xl text-2xl transform hover:scale-105 transition-transform duration-200 shadow-md hover:shadow-lg">
-          2-sinf Matematika
-        </button>
-      </div>
+  // Bu oq kartochka uchun umumiy konteyner
+  <div className="card"> 
+    <h1 className="title">EduLearn</h1>
+    <p className="subtitle">Bilimingizni sinab ko'ring va yangi cho'qqilarni zabt eting!</p>
+    <div className="button-container">
+      <button onClick={startTest} className="main-button">
+        2-sinf Matematika
+      </button>
     </div>
+  </div>
   );
 
   const renderTestPage = () => {
-    const question = questions[currentQuestionIndex];
-    return (
-      <div className="bg-white p-8 rounded-2xl shadow-lg max-w-2xl w-full">
-        <div className="mb-4">
-          <p className="text-sm text-slate-500">Savol {currentQuestionIndex + 1} / {questions.length}</p>
-          <div className="w-full bg-slate-200 rounded-full h-2.5 mt-1">
-            <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style={{ width: `${((currentQuestionIndex) / questions.length) * 100}%` }}></div>
-          </div>
-        </div>
-        <h2 className="text-2xl font-bold text-slate-800 mb-6">{question.question}</h2>
-        <div className="flex flex-col gap-4">
-          {question.options.map((option) => (
-            <button
-              key={option}
-              onClick={() => handleAnswer(option)}
-              disabled={isAnswered} // Javob berilgach, tugmalarni bloklash
-              className={`border-2 p-4 rounded-xl text-left text-lg transition-colors duration-200 ${getButtonClass(option)} ${isAnswered ? 'cursor-not-allowed' : ''}`}
-            >
-              {option}
-            </button>
-          ))}
+  const question = questions[currentQuestionIndex];
+  return (
+    // Bu ham o'sha umumiy oq kartochka
+    <div className="card"> 
+      <div className="progress-container">
+        <p className="progress-text">Savol {currentQuestionIndex + 1} / {questions.length}</p>
+        <div className="progress-bar-background">
+          <div 
+            className="progress-bar-foreground" 
+            style={{ width: `${((currentQuestionIndex) / questions.length) * 100}% `}}
+          ></div>
         </div>
       </div>
-    );
-  };
+      <h2 className="question-text">{question.question}</h2>
+      <div className="options-container">
+        {question.options.map((option) => (
+          <button
+            key={option}
+            onClick={() => handleAnswer(option)}
+            disabled={isAnswered}
+            // Bu yerda klasslar dinamik o'zgaradi, shuning uchun JavaScript'dan foydalanamiz
+            className={`option-button ${getButtonClass(option)} ${isAnswered ? 'disabled' : ''}`}
+          >
+            {option}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
   const renderResultPage = () => {
-    const score = calculateScore();
-    return (
-      <div className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-2xl w-full">
-        <h1 className="text-5xl font-extrabold mb-4 text-slate-800">Natija!</h1>
-        <p className="text-2xl text-slate-600 mb-6">
-          Siz <span className="font-bold text-blue-600">{questions.length}</span> ta savoldan <span className="font-bold text-green-600">{score}</span> tasiga to'g'ri javob berdingiz!
-        </p>
-        <button onClick={startTest} className="bg-blue-600 text-white font-bold py-3 px-8 rounded-xl text-xl transform hover:scale-105 transition-transform duration-200 shadow-md hover:shadow-lg">
-          Qaytadan Boshlash
-        </button>
-      </div>
-    );
-  };
+  const score = calculateScore();
+  return (
+    // Bu ham o'sha umumiy oq kartochka
+    <div className="card"> 
+      <h1 className="title">Natija!</h1>
+      <p className="result-text">
+        Siz <span className="total-questions-text">{questions.length}</span> ta savoldan <span className="score-text">{score}</span> tasiga to'g'ri javob berdingiz!
+      </p>
+      {/* Bu tugma Bosh sahifadagi bilan bir xil, shuning uchun o'sha klassni ishlatamiz */}
+      <button onClick={startTest} className="main-button">
+        Qaytadan Boshlash
+      </button>
+    </div>
+  );
+};
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-slate-100">
+    <div className="app-container">
       {currentPage === 'HOME' && renderHomePage()}
       {currentPage === 'TEST' && renderTestPage()}
       {currentPage === 'RESULT' && renderResultPage()}
