@@ -1,6 +1,5 @@
 // src/pages/SubjectPage.tsx
 
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 // Bu yerda biz hozircha ma'lumotlarni qo'lda yozib turamiz.

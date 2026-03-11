@@ -1,6 +1,5 @@
 // src/pages/ResultPage.tsx
 
-import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function ResultPage() {
