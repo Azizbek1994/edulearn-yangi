@@ -3,9 +3,10 @@
 import { Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import HomePage from './pages/HomePage';
-import TestPage from './pages/TestPage'; // YANGI
-import ResultPage from './pages/ResultPage'; // YANGI
 import SubjectPage from './pages/SubjectPage';
+import TopicsPage from './pages/TopicsPage'; // IMPORT QILINGAN
+import TestPage from './pages/TestPage';
+import ResultPage from './pages/ResultPage';
 
 function App() {
   return (
@@ -14,10 +15,14 @@ function App() {
       <div className="page-content">
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/subject/math" element={<SubjectPage />} /> {/* YANGI */}
-          <Route path="/test/math-grade-2" element={<TestPage />} />
-          <Route path="/result" element={<ResultPage />} />
-        </Routes>
+          
+          {/* Dinamik marshrutlar */}
+          <Route path="/subject/:subjectId" element={<SubjectPage />} />
+          <Route path="/subject/:subjectId/:sectionId" element={<TopicsPage />} />
+          <Route path="/test/:grade-2-topic-1" element={<TestPage />} /> {/* TestPage'ni ham dinamik qilamiz */}
+  
+  <Route path="/result" element={<ResultPage />} />
+</Routes>
       </div>
     </div>
   );

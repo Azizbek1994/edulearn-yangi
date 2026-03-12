@@ -1,41 +1,102 @@
-// src/pages/TestPage.tsx
+ // src/pages/TestPage.tsx
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Marshrutni o'zgartirish uchun
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { allTestData } from '../data';
 
-// Hozircha faqat 2-sinf savollarini import qilamiz
-import questions from '../questions.json';
+// --- Tiplar (o'zgarishsiz) ---
+interface Question {
+  question: string;
+  options: string[];
+  correctAnswer: string;
+}
+type TestParams = {
+  subjectId: keyof typeof allTestData;
+  sectionId: string;
+  topicId: string;
+}
 
 export default function TestPage() {
-  const navigate = useNavigate(); // Sahifani o'zgartirish funksiyasi
+  const navigate = useNavigate();
+  const { subjectId, sectionId, topicId } = useParams<TestParams>();
+  
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
+  
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
 
+  // --- YAKUNIY VA TO'G'RI useEffect BLOKI ---
+  useEffect(() => {
+    const getQuestions = async () => {
+      if (!subjectId || !sectionId || !topicId) {
+        setLoading(false);
+        return;
+      }
+      
+      const subject = allTestData[subjectId];
+      const section = subject?.sections[sectionId as keyof typeof subject.sections];
+      const topicData = section?.topics[topicId as keyof typeof section.topics];
+
+      if (!topicData) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // 1. Vite'ga barcha .json fayllarni oldindan topishni aytamiz
+        const questionFiles = import.meta.glob('../questions/*.json');
+        
+        // 2. Bizga kerakli faylning to'liq yo'lini yaratamiz
+        const modulePath = `../questions/${topicData.questionsFile}`;
+
+        // 3. Agar bizga kerakli fayl ro'yxatda mavjud bo'lsa...
+        if (questionFiles[modulePath]) {
+          // ...uni chaqiramiz (yuklaymiz)
+          const module = await questionFiles[modulePath]();
+          const allQuestionsInFile = (module as any).default;
+          
+          // 4. Fayl ichidan kerakli ID dagi savollar to'plamini olamiz
+          const specificQuestions = allQuestionsInFile[topicData.questionSetId];
+
+          if (specificQuestions) {
+            setQuestions(specificQuestions);
+          } else {
+            console.error(`XATO: Savollar to'plami topilmadi. Fayl: ${modulePath}, ID: ${topicData.questionSetId}`);
+            setQuestions([]);
+          }
+        } else {
+          console.error(`XATO: Savol fayli topilmadi: ${modulePath}`);
+          setQuestions([]);
+        }
+      } catch (error) {
+        console.error("XATO: Savollarni yuklashda kutilmagan xatolik yuz berdi:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getQuestions();
+  }, [subjectId, sectionId, topicId]);
+
+  // --- Qolgan barcha funksiyalar va JSX (o'zgarishsiz) ---
   const handleAnswer = (answer: string) => {
     if (isAnswered) return;
-
     setIsAnswered(true);
     setSelectedAnswer(answer);
-
-    const newAnswers = [...userAnswers];
-    newAnswers[currentQuestionIndex] = answer;
+    const newAnswers = [...userAnswers, answer];
     setUserAnswers(newAnswers);
-
     setTimeout(() => {
       if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex(currentQuestionIndex + 1);
         setIsAnswered(false);
         setSelectedAnswer(null);
       } else {
-        // Natijani hisoblab, yangi sahifaga jo'natish
         const score = questions.reduce((score, question, index) => {
-            // newAnswers'dan foydalanamiz, chunki userAnswers hali yangilanmagan bo'lishi mumkin
             return question.correctAnswer === newAnswers[index] ? score + 1 : score;
         }, 0);
-        
-        // Natija sahifasiga o'tish va natijani o'zi bilan olib ketish
         navigate('/result', { state: { score: score, total: questions.length } });
       }
     }, 1500);
@@ -49,7 +110,14 @@ export default function TestPage() {
     return "";
   };
 
-  const question = questions[currentQuestionIndex];
+  if (loading) {
+    return <div className="card">Savollar yuklanmoqda...</div>;
+  }
+
+  if (questions.length === 0) {
+    return <div className="card">Bu bo'lim uchun hali savollar qo'shilmagan yoki yuklashda xatolik yuz berdi.</div>;
+  }
+ const question = questions[currentQuestionIndex];
 
   return (
     <div className="card">

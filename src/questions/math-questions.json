@@ -1,0 +1,35 @@
+{
+  "grade-2-topic-1": [
+    {
+      "question": "15 + 25 = ?",
+      "options": ["30", "35", "40", "45"],
+      "correctAnswer": "40"
+    },
+    {
+      "question": "50 - 12 = ?",
+      "options": ["38", "48", "28", "42"],
+      "correctAnswer": "38"
+    }
+  ],
+  "grade-2-topic-2": [
+    {
+      "question": "7 x 8 = ?",
+      "options": ["54", "56", "64", "63"],
+      "correctAnswer": "56"
+    }
+  ],
+  "grade-3-topic-1": [
+    {
+      "question": "150 + 250 = ?",
+      "options": ["300", "350", "400", "450"],
+      "correctAnswer": "400"
+    }
+  ],
+  "critical-thinking-topic-1": [
+    {
+      "question": "Agar bugun chorshanba bo'lsa, 4 kundan keyin qaysi kun bo'ladi?",
+      "options": ["Shanba", "Yakshanba", "Dushanba", "Juma"],
+      "correctAnswer": "Yakshanba"
+    }
+  ]
+}
